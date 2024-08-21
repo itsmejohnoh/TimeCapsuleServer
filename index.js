@@ -88,11 +88,12 @@ cloudinary.config({
 
 // Upload an image
 async function uploadImage () {
-	const result = await cloudinary.uploader.upload('') //Insert the path to the image and it will upload that image to cloudinary
-	console.log(success);
+	const result = await cloudinary.uploader.upload('/Users/john/Documents/Personal Project/picture1.jpg') //Insert the path to the image and it will upload that image to cloudinary
+	console.log('success');
 	const url = cloudinary.url(result.public_id)
+	console.log(url);
 }
-
+uploadImage()
 
 app.listen(port, () => {
 	console.log("Server is running on port " + port);
