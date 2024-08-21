@@ -10,8 +10,6 @@ const port = process.env.PORT || 3500;
 
 const app = express();
 
-const Joi = require("joi");
-
 const expireTime = 1 * 60 * 60 * 1000; //expires after 1 hour  (hours * minutes * seconds * millis)
 
 /* secret information section */
@@ -78,6 +76,51 @@ app.post("/submitUser", async (req, res) => {
 		}
 	});
 });
+
+// app.use(session({
+// 	secret: node_session_secret,
+// 	store: mongoStore, //default is memory store 
+// 	saveUninitialized: false,
+// 	resave: true
+// }
+// ));
+
+// function isValidSession(req) {
+// 	if (req.session.authenticated) {
+// 		return true;
+// 	}
+// 	return false;
+// }
+
+// app.get('/nosql-injection', async (req,res) => {
+// 	var name = req.query.user;
+
+// 	if (!name) {
+// 		res.send(`<h3>no user provided</h3>`);
+// 		return;
+// 	}
+// 	console.log("user: "+name);
+
+// 	const schema = Joi.string().max(20).required();
+// 	const validationResult = schema.validate(name);
+
+// 	//If we didn't use Joi to validate and check for a valid URL parameter below
+// 	// we could run our userCollection.find and it would be possible to attack.
+// 	// A URL parameter of user[$ne]=name would get executed as a MongoDB command
+// 	// and may result in revealing information about all users or a successful
+// 	// login without knowing the correct password.
+// 	if (validationResult.error != null) {  
+// 	   console.log(validationResult.error);
+// 	   res.send("<h1 style='color:darkred;'>A NoSQL injection attack was detected!!</h1>");
+// 	   return;
+// 	}	
+
+// 	const result = await userCollection.find({name: name}).project({name: 1, email: 1, password: 1, _id: 1}).toArray();
+
+// 	console.log(result);
+
+//     res.send(`<h1>Hello ${name}</h1>`);
+// });
 
 // Configuration
 cloudinary.config({
