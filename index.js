@@ -161,7 +161,7 @@ app.post('/submitUser', async (req, res) => {
 
 // Configuration
 // cloudinary.config({
-// 	cloud_name: "deso10ca8",
+// 	cloud_name: process.env.CLOUDINARY_NAME,
 // 	api_key: process.env.CLOUDINARY_KEY,
 // 	api_secret: process.env.CLOUDINARY_SECRET, 
 // });
