@@ -49,13 +49,6 @@ app.use(
 	})
 );
 
-function isValidSession(req) {
-	if (req.session.authenticated) {
-		return true;
-	}
-	return false;
-}
-
 app.post('/submitUser', async (req, res) => {
 	const _name = req.body.name;
 	const _email = req.body.email;
