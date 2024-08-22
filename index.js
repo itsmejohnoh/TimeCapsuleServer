@@ -1,4 +1,5 @@
 require("./utils.js");
+
 require("dotenv").config();
 const express = require("express");
 const session = require("express-session");
@@ -52,30 +53,64 @@ function isValidSession(req) {
 	return false;
 }
 
-app.post("/submitUser", async (req, res) => {
-	var name = req.body.name;
-	var email = req.body.email;
-	var password = req.body.password;
+app.post('/submitUser', async (req, res) => {
+	const _name = req.body.name;
+	const _email = req.body.email;
+	const _password = req.body.password;
 
-	userCollection.findOne({ email: email }).exec((err, foundUser) => {
-		if (!foundUser) {
-			userCollection.insertOne({
-				name: name,
-				email: email,
-				password: password,
-				user_type: "user",
+	console.log(_name);
+
+	const foundUser = userCollection.find({ email: _email }).toArray();
+	if (!foundUser[0]) {
+		console.log(3);
+		userCollection.insertOne({ name: _name, email: _email, password: _password })
+			.then((result) => {
+				res.send("success")
+			}).catch((err) => {
+				console.log(err);
 			});
-
-			console.log("Inserted user");
-
-			req.session.authenticated = true;
-			req.session.name = name;
-			req.session.user_type = user_type;
-			res.send();
-			// res.redirect("/members");
-		}
-	});
+	} else {
+		res.send(`There is a user registered with the username ${name}`);
+	}
 });
+
+// app.post('/submitUser', async (req, res) => {
+// 	var name = req.body.name;
+// 	var email = req.body.email;
+// 	var password = req.body.password;
+
+//     userCollection.findOne({email:email}).exec((err, foundUser) => {
+//         if(!foundUser){
+//             const schema = Joi.object(
+//                 {
+//                     name: Joi.string().alphanum().max(20).required(),
+//                     email: Joi.string().email().required(),
+//                     password: Joi.string().max(20).required()
+//                 });
+
+//             const validationResult = schema.validate({ name, email, password });
+
+//             // if (validationResult.error != null) {
+//             //     console.log(validationResult.error);
+//             //     // res.redirect(invalid);
+//             //     res.status(400).json({message: "Validation Failed"});
+//             // }
+
+//             // var hashedPassword = bcrypt.hash(password, saltRounds).then((password)=>{
+//             //     userCollection.insertOne({ name: name, email: email, password: hashedPassword, user_type: "user"});
+//             // })
+
+//             console.log("Inserted user");
+
+//             req.session.authenticated = true;
+//             req.session.name = name;
+//             req.session.user_type = user_type;
+//             res.send()
+//             // res.redirect("/members");
+//         }
+//     })
+
+// });
 
 // app.use(session({
 // 	secret: node_session_secret,
