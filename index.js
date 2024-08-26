@@ -74,22 +74,23 @@ app.post('/submitUser', async (req, res) => {
 	}
 });
 
-app.post('/login', async (req, res) => {
+app.post('/signIn', async (req, res) => {
 	const _email = req.body.email;
 
-	const foundUser = await userCollection.find({email: _email}).project({username: 1}).toArray();
+	console.log(req.body);
+	const foundUser = await userCollection.find({email: _email}).project({username: 1, password: 1}).toArray();
 	if (foundUser[0]) {
-		var _username = result[0].username;
+		var _username = foundUser[0].username;
+		var _password = foundUser[0].password;
 		req.session.authenticated = true;
 		req.session.username = _username;
 		req.session.email = _email;
 		req.session.maxAge = expireTime;
-		res.send("success")
+		res.send(_password);
 	} else {
 		res.send(`Error with login`)
 	}
 })
-
 
 // app.post('/submitUser', async (req, res) => {
 // 	var name = req.body.name;
