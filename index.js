@@ -74,7 +74,6 @@ app.post('/submitUser', async (req, res) => {
 	}
 });
 
-const _email = "";
 app.post('/signIn', async (req, res) => {
 	_email = req.body.email;
 
