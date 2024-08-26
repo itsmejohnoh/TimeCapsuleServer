@@ -74,8 +74,9 @@ app.post('/submitUser', async (req, res) => {
 	}
 });
 
+const _email = "";
 app.post('/signIn', async (req, res) => {
-	const _email = req.body.email;
+	_email = req.body.email;
 
 	console.log(req.body);
 	const foundUser = await userCollection.find({email: _email}).project({username: 1, password: 1}).toArray();
@@ -91,6 +92,12 @@ app.post('/signIn', async (req, res) => {
 		res.send(`Error with login`)
 	}
 })
+
+app.post('/logout', (req, res) => {
+	console.log(_email);
+	req.session.destroy();
+	res.send("Session Ended");
+});
 
 // app.post('/submitUser', async (req, res) => {
 // 	var name = req.body.name;
