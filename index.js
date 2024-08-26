@@ -60,6 +60,11 @@ app.post('/submitUser', async (req, res) => {
 	if (foundUser[0] == undefined) {
 		userCollection.insertOne({ name: _name, email: _email, password: _password })
 			.then((result) => {
+				req.session.authenticated = true;
+				req.session.username = _name;
+				req.session.email = _email;
+				req.session.cookie.maxAge = expireTime;
+				
 				res.send("success")
 			}).catch((err) => {
 				console.log(err);
