@@ -74,6 +74,23 @@ app.post('/submitUser', async (req, res) => {
 	}
 });
 
+app.post('/login', async (req, res) => {
+	const _email = req.body.email;
+
+	const foundUser = await userCollection.find({email: _email}).project({username: 1}).toArray();
+	if (foundUser[0]) {
+		var _username = result[0].username;
+		req.session.authenticated = true;
+		req.session.username = _username;
+		req.session.email = _email;
+		req.session.maxAge = expireTime;
+		res.send("success")
+	} else {
+		res.send(`Error with login`)
+	}
+})
+
+
 // app.post('/submitUser', async (req, res) => {
 // 	var name = req.body.name;
 // 	var email = req.body.email;
