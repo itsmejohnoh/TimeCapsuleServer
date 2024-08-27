@@ -4,6 +4,7 @@ require("dotenv").config();
 const express = require("express");
 const session = require("express-session");
 const MongoStore = require("connect-mongo");
+const { object } = require("joi");
 const cloudinary = require("cloudinary").v2;
 const saltRounds = 12;
 
@@ -54,8 +55,6 @@ app.post('/submitUser', async (req, res) => {
 	const _email = req.body.email;
 	const _password = req.body.password;
 
-	console.log(req.body);
-
 	const foundUser = await userCollection.find({ email: _email }).toArray();
 	if (foundUser[0] == undefined) {
 		userCollection.insertOne({ name: _name, email: _email, password: _password })
@@ -73,6 +72,7 @@ app.post('/submitUser', async (req, res) => {
 		res.send(`There is a user registered with the username ${_name}`);
 	}
 });
+
 
 app.post('/signIn', async (req, res) => {
 	_email = req.body.email;
@@ -96,6 +96,7 @@ app.post('/logout', (req, res) => {
 	console.log(_email);
 	req.session.destroy();
 	res.send("Session Ended");
+
 });
 
 // app.post('/submitUser', async (req, res) => {
