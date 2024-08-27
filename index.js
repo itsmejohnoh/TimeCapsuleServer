@@ -50,13 +50,6 @@ app.use(
 	})
 );
 
-function isValidSession(req) {
-	if (req.session.authenticated) {
-		return true;
-	}
-	return false;
-}
-
 app.post('/submitUser', async (req, res) => {
 	const _name = req.body.name;
 	const _email = req.body.email;
@@ -66,6 +59,11 @@ app.post('/submitUser', async (req, res) => {
 	if (foundUser[0] == undefined) {
 		userCollection.insertOne({ name: _name, email: _email, password: _password })
 			.then((result) => {
+				req.session.authenticated = true;
+				req.session.username = _name;
+				req.session.email = _email;
+				req.session.cookie.maxAge = expireTime;
+				
 				res.send("success")
 			}).catch((err) => {
 				console.log(err);
@@ -75,16 +73,30 @@ app.post('/submitUser', async (req, res) => {
 	}
 });
 
-app.post('/login', async (req, res) => {
-	const email = req.body.email;
 
-	const foundUser = await userCollection.find({ email: email}).toArray();
-	if(foundUser[0] == undefined){
-		res.send("Incorrect Username!");
-	}else{
-		console.log(foundUser[0].password);
-		res.send(foundUser[0].password);
+app.post('/signIn', async (req, res) => {
+	_email = req.body.email;
+
+	console.log(req.body);
+	const foundUser = await userCollection.find({email: _email}).project({username: 1, password: 1}).toArray();
+	if (foundUser[0]) {
+		var _username = foundUser[0].username;
+		var _password = foundUser[0].password;
+		req.session.authenticated = true;
+		req.session.username = _username;
+		req.session.email = _email;
+		req.session.maxAge = expireTime;
+		res.send(_password);
+	} else {
+		res.send(`Error with login`)
 	}
+})
+
+app.post('/logout', (req, res) => {
+	console.log(_email);
+	req.session.destroy();
+	res.send("Session Ended");
+
 });
 
 // app.post('/submitUser', async (req, res) => {
@@ -172,7 +184,7 @@ app.post('/login', async (req, res) => {
 
 // Configuration
 // cloudinary.config({
-// 	cloud_name: "deso10ca8",
+// 	cloud_name: process.env.CLOUDINARY_NAME,
 // 	api_key: process.env.CLOUDINARY_KEY,
 // 	api_secret: process.env.CLOUDINARY_SECRET, 
 // });
