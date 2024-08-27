@@ -4,12 +4,16 @@ require("dotenv").config();
 const express = require("express");
 const session = require("express-session");
 const MongoStore = require("connect-mongo");
+const { object } = require("joi");
 const cloudinary = require("cloudinary").v2;
 const saltRounds = 12;
 
 const port = process.env.PORT || 3500;
 
 const app = express();
+
+app.use(express.json());
+app.use(express.urlencoded({extended: true}));
 
 const expireTime = 1 * 60 * 60 * 1000; //expires after 1 hour  (hours * minutes * seconds * millis)
 
@@ -46,32 +50,53 @@ app.use(
 	})
 );
 
-function isValidSession(req) {
-	if (req.session.authenticated) {
-		return true;
-	}
-	return false;
-}
-
 app.post('/submitUser', async (req, res) => {
 	const _name = req.body.name;
 	const _email = req.body.email;
 	const _password = req.body.password;
 
-	console.log(_name);
-
-	const foundUser = userCollection.find({ email: _email }).toArray();
-	if (!foundUser[0]) {
-		console.log(3);
+	const foundUser = await userCollection.find({ email: _email }).toArray();
+	if (foundUser[0] == undefined) {
 		userCollection.insertOne({ name: _name, email: _email, password: _password })
 			.then((result) => {
+				req.session.authenticated = true;
+				req.session.username = _name;
+				req.session.email = _email;
+				req.session.cookie.maxAge = expireTime;
+				
 				res.send("success")
 			}).catch((err) => {
 				console.log(err);
 			});
 	} else {
-		res.send(`There is a user registered with the username ${name}`);
+		res.send(`There is a user registered with the username ${_name}`);
 	}
+});
+
+
+app.post('/signIn', async (req, res) => {
+	_email = req.body.email;
+
+	console.log(req.body);
+	const foundUser = await userCollection.find({email: _email}).project({username: 1, password: 1}).toArray();
+	if (foundUser[0]) {
+		var _username = foundUser[0].username;
+		var _password = foundUser[0].password;
+		req.session.authenticated = true;
+		req.session.username = _username;
+		req.session.email = _email;
+		req.session.maxAge = expireTime;
+		res.send(_password);
+	} else {
+		res.send(`Error with login`)
+	}
+})
+
+app.post('/logout', (req, res) => {
+	console.log(_email);
+	req.session.destroy();
+	res.send("Session Ended");
+
 });
 
 // app.post('/submitUser', async (req, res) => {
@@ -158,20 +183,20 @@ app.post('/submitUser', async (req, res) => {
 // });
 
 // Configuration
-cloudinary.config({
-	cloud_name: "deso10ca8",
-	api_key: process.env.CLOUDINARY_KEY,
-	api_secret: process.env.CLOUDINARY_SECRET, 
-});
+// cloudinary.config({
+// 	cloud_name: process.env.CLOUDINARY_NAME,
+// 	api_key: process.env.CLOUDINARY_KEY,
+// 	api_secret: process.env.CLOUDINARY_SECRET, 
+// });
 
-// Upload an image
-async function uploadImage () {
-	const result = await cloudinary.uploader.upload('/Users/john/Documents/Personal Project/picture1.jpg') //Insert the path to the image and it will upload that image to cloudinary
-	console.log('success');
-	const url = cloudinary.url(result.public_id)
-	console.log(url);
-}
-uploadImage()
+// // Upload an image
+// async function uploadImage () {
+// 	const result = await cloudinary.uploader.upload('/Users/john/Documents/Personal Project/picture1.jpg') //Insert the path to the image and it will upload that image to cloudinary
+// 	console.log('success');
+// 	const url = cloudinary.url(result.public_id)
+// 	console.log(url);
+// };
+// uploadImage();
 
 app.listen(port, () => {
 	console.log("Server is running on port " + port);
