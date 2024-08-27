@@ -59,10 +59,10 @@ app.post('/submitUser', async (req, res) => {
 	if (foundUser[0] == undefined) {
 		userCollection.insertOne({ name: _name, email: _email, password: _password })
 			.then((result) => {
-				req.session.authenticated = true;
-				req.session.username = _name;
-				req.session.email = _email;
-				req.session.cookie.maxAge = expireTime;
+				session.authenticated = true;
+				session.username = _name;
+				session.email = _email;
+				session.cookie.maxAge = expireTime;
 				
 				res.send("success")
 			}).catch((err) => {
@@ -81,10 +81,10 @@ app.post('/signIn', async (req, res) => {
 	if (foundUser[0]) {
 		var _username = foundUser[0].username;
 		var _password = foundUser[0].password;
-		req.session.authenticated = true;
-		req.session.username = _username;
-		req.session.email = _email;
-		req.session.maxAge = expireTime;
+		session.authenticated = true;
+		session.username = _username;
+		session.email = _email;
+		session.maxAge = expireTime;
 		res.send(_password);
 	} else {
 		res.send(`Error with login`)
@@ -95,18 +95,6 @@ app.post('/logout', (req, res) => {
 	console.log(_email);
 	req.session.destroy();
 	res.send("Session Ended");
-});
-
-app.post('/login', async (req, res) => {
-	const email = req.body.email;
-
-	const foundUser = await userCollection.find({ email: email}).toArray();
-	if(foundUser[0] == undefined){
-		res.send("Incorrect Username!");
-	}else{
-		console.log(foundUser[0].password);
-		res.send(foundUser[0].password);
-	}
 });
 
 // app.post('/submitUser', async (req, res) => {
