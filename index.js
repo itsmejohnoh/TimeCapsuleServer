@@ -73,6 +73,10 @@ app.post('/submitUser', async (req, res) => {
 	}
 });
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> refs/remotes/origin/main
 app.post('/signIn', async (req, res) => {
 	_email = req.body.email;
 
@@ -95,6 +99,10 @@ app.post('/logout', (req, res) => {
 	console.log(_email);
 	req.session.destroy();
 	res.send("Session Ended");
+<<<<<<< HEAD
+=======
+
+>>>>>>> refs/remotes/origin/main
 });
 
 // app.post('/submitUser', async (req, res) => {
